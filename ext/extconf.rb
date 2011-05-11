@@ -69,10 +69,12 @@ unless ENV["USE_SYSTEM_LIBRARIES"]
   unless have_library('yajl_ext') and have_header('json/json_gen.h')
     raise 'Yajl build failed'
   end
+  add_define 'HAVE_JSON_JSON_H'
 else
   unless have_library('yajl') and have_header('yajl/yajl_gen.h')
     raise 'Yajl build failed'
   end
+  add_define 'HAVE_YAJL_YAJL_H'
 end
 
 

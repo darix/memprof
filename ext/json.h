@@ -2,7 +2,7 @@
 #define __JSON__H_
 
 #include <stdarg.h>
-#include <json/yajl_gen.h>
+#include <yajl/yajl_gen.h>
 
 /* HAX: copied from internal yajl_gen.c (PATCH json before building instead)
  */
