@@ -125,22 +125,22 @@ type_string(int type) {
 }
 
 static void
-objects_trace_dump(json_gen gen) {
+objects_trace_dump(yajl_gen gen) {
   int i;
   record_last_obj();
 
-  json_gen_cstr(gen, "created");
-  json_gen_integer(gen, stats.newobj_calls);
+  yajl_gen_cstr(gen, "created");
+  yajl_gen_integer(gen, stats.newobj_calls);
 
-  json_gen_cstr(gen, "types");
-  json_gen_map_open(gen);
+  yajl_gen_cstr(gen, "types");
+  yajl_gen_map_open(gen);
   for (i=0; i<T_MASK+1; i++) {
     if (stats.types[i] > 0) {
-      json_gen_cstr(gen, type_string(i));
-      json_gen_integer(gen, stats.types[i]);
+      yajl_gen_cstr(gen, type_string(i));
+      yajl_gen_integer(gen, stats.types[i]);
     }
   }
-  json_gen_map_close(gen);
+  yajl_gen_map_close(gen);
 }
 
 void install_objects_tracer()

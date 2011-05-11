@@ -89,31 +89,31 @@ mysql_trace_reset() {
 }
 
 static void
-mysql_trace_dump(json_gen gen) {
+mysql_trace_dump(yajl_gen gen) {
   enum memprof_sql_type i;
 
   if (stats.query_calls > 0) {
-    json_gen_cstr(gen, "queries");
-    json_gen_integer(gen, stats.query_calls);
+    yajl_gen_cstr(gen, "queries");
+    yajl_gen_integer(gen, stats.query_calls);
 
-    json_gen_cstr(gen, "time");
-    json_gen_integer(gen, stats.query_time);
+    yajl_gen_cstr(gen, "time");
+    yajl_gen_integer(gen, stats.query_time);
 
-    json_gen_cstr(gen, "types");
-    json_gen_map_open(gen);
+    yajl_gen_cstr(gen, "types");
+    yajl_gen_map_open(gen);
     for (i=0; i<=sql_UNKNOWN; i++) {
-      json_gen_cstr(gen, memprof_sql_type_str(i));
-      json_gen_map_open(gen);
+      yajl_gen_cstr(gen, memprof_sql_type_str(i));
+      yajl_gen_map_open(gen);
 
-      json_gen_cstr(gen, "queries");
-      json_gen_integer(gen, stats.query_calls_by_type[i]);
+      yajl_gen_cstr(gen, "queries");
+      yajl_gen_integer(gen, stats.query_calls_by_type[i]);
 
-      json_gen_cstr(gen, "time");
-      json_gen_integer(gen, stats.query_time_by_type[i]);
+      yajl_gen_cstr(gen, "time");
+      yajl_gen_integer(gen, stats.query_time_by_type[i]);
 
-      json_gen_map_close(gen);
+      yajl_gen_map_close(gen);
     }
-    json_gen_map_close(gen);
+    yajl_gen_map_close(gen);
   }
 }
 

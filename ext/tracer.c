@@ -7,7 +7,7 @@
 #include "tracer.h"
 #include "util.h"
 
-static json_gen tracing_json_gen = NULL;
+static yajl_gen tracing_yajl_gen = NULL;
 
 /*
    XXX if we ever need a linked list for anything else ever, remove this crap
@@ -67,10 +67,10 @@ do_trace_invoke(struct tracer *trace, trace_fn fn)
       trace->reset();
       break;
     case TRACE_DUMP:
-      json_gen_cstr(tracing_json_gen, trace->id);
-      json_gen_map_open(tracing_json_gen);
-      trace->dump(tracing_json_gen);
-      json_gen_map_close(tracing_json_gen);
+      yajl_gen_cstr(tracing_yajl_gen, trace->id);
+      yajl_gen_map_open(tracing_yajl_gen);
+      trace->dump(tracing_yajl_gen);
+      yajl_gen_map_close(tracing_yajl_gen);
       break;
     default:
       dbg_printf("invoked a non-existant trace function type: %d", fn);
@@ -105,13 +105,13 @@ trace_invoke(const char *id, trace_fn fn)
 }
 
 void
-trace_set_output(json_gen gen)
+trace_set_output(yajl_gen gen)
 {
-  tracing_json_gen = gen;
+  tracing_yajl_gen = gen;
 }
 
-json_gen
+yajl_gen
 trace_get_output()
 {
-  return tracing_json_gen;
+  return tracing_yajl_gen;
 }

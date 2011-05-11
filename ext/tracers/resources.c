@@ -37,7 +37,7 @@ resources_trace_start() {
 }
 
 static void
-resources_trace_dump(json_gen gen) {
+resources_trace_dump(yajl_gen gen) {
   { // calculate diff before dump, since stop is called after dump
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
@@ -51,20 +51,20 @@ resources_trace_dump(json_gen gen) {
     stats.utime += TVAL_TO_INT64(usage.ru_utime);
   }
 
-  json_gen_cstr(gen, "signals");
-  json_gen_integer(gen, stats.nsignals);
+  yajl_gen_cstr(gen, "signals");
+  yajl_gen_integer(gen, stats.nsignals);
 
-  json_gen_cstr(gen, "inputs");
-  json_gen_integer(gen, stats.inblock);
+  yajl_gen_cstr(gen, "inputs");
+  yajl_gen_integer(gen, stats.inblock);
 
-  json_gen_cstr(gen, "outputs");
-  json_gen_integer(gen, stats.oublock);
+  yajl_gen_cstr(gen, "outputs");
+  yajl_gen_integer(gen, stats.oublock);
 
-  json_gen_cstr(gen, "stime");
-  json_gen_integer(gen, stats.stime);
+  yajl_gen_cstr(gen, "stime");
+  yajl_gen_integer(gen, stats.stime);
 
-  json_gen_cstr(gen, "utime");
-  json_gen_integer(gen, stats.utime);
+  yajl_gen_cstr(gen, "utime");
+  yajl_gen_integer(gen, stats.utime);
 }
 
 static void

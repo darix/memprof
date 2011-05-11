@@ -77,50 +77,50 @@ memcache_trace_reset() {
 }
 
 static void
-memcache_trace_dump_results(json_gen gen, size_t responses[])
+memcache_trace_dump_results(yajl_gen gen, size_t responses[])
 {
   int i;
-  json_gen_cstr(gen, "responses");
-  json_gen_map_open(gen);
+  yajl_gen_cstr(gen, "responses");
+  yajl_gen_map_open(gen);
   for (i=0; i < 45; i++) {
     if (responses[i]) {
       switch (i) {
         case 0:
-          json_gen_cstr(gen, "success");
+          yajl_gen_cstr(gen, "success");
           break;
         case 16:
-          json_gen_cstr(gen, "notfound");
+          yajl_gen_cstr(gen, "notfound");
           break;
         case 44:
-          json_gen_cstr(gen, "unknown");
+          yajl_gen_cstr(gen, "unknown");
           break;
         default:
-          json_gen_format(gen, "%d", i);
+          yajl_gen_format(gen, "%d", i);
       }
-      json_gen_integer(gen, responses[i]);
+      yajl_gen_integer(gen, responses[i]);
     }
   }
-  json_gen_map_close(gen);
+  yajl_gen_map_close(gen);
 }
 
 static void
-memcache_trace_dump(json_gen gen) {
+memcache_trace_dump(yajl_gen gen) {
   if (stats.get_calls > 0) {
-    json_gen_cstr(gen, "get");
-    json_gen_map_open(gen);
-    json_gen_cstr(gen, "calls");
-    json_gen_integer(gen, stats.get_calls);
+    yajl_gen_cstr(gen, "get");
+    yajl_gen_map_open(gen);
+    yajl_gen_cstr(gen, "calls");
+    yajl_gen_integer(gen, stats.get_calls);
     memcache_trace_dump_results(gen, stats.get_responses);
-    json_gen_map_close(gen);
+    yajl_gen_map_close(gen);
   }
 
   if (stats.set_calls > 0) {
-    json_gen_cstr(gen, "set");
-    json_gen_map_open(gen);
-    json_gen_cstr(gen, "calls");
-    json_gen_integer(gen, stats.set_calls);
+    yajl_gen_cstr(gen, "set");
+    yajl_gen_map_open(gen);
+    yajl_gen_cstr(gen, "calls");
+    yajl_gen_integer(gen, stats.set_calls);
     memcache_trace_dump_results(gen, stats.set_responses);
-    json_gen_map_close(gen);
+    yajl_gen_map_close(gen);
   }
 }
 

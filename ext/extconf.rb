@@ -66,11 +66,15 @@ unless ENV["USE_SYSTEM_LIBRARIES"]
 
   $LIBPATH.unshift "#{CWD}/dst/lib"
   $INCFLAGS[0,0] = "-I#{CWD}/dst/include "
+  unless have_library('yajl_ext') and have_header('json/json_gen.h')
+    raise 'Yajl build failed'
+  end
+else
+  unless have_library('yajl') and have_header('yajl/yajl_gen.h')
+    raise 'Yajl build failed'
+  end
 end
 
-unless (have_library('yajl_ext') or have_library('yajl')) and have_header('json/json_gen.h')
-  raise 'Yajl build failed'
-end
 
 def add_define(name)
   $defs.push("-D#{name}")

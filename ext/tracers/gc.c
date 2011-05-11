@@ -68,18 +68,18 @@ gc_trace_reset() {
 }
 
 static void
-gc_trace_dump(json_gen gen) {
-  json_gen_cstr(gen, "calls");
-  json_gen_integer(gen, stats.gc_calls);
+gc_trace_dump(yajl_gen gen) {
+  yajl_gen_cstr(gen, "calls");
+  yajl_gen_integer(gen, stats.gc_calls);
 
-  json_gen_cstr(gen, "time");
-  json_gen_integer(gen, stats.gc_time);
+  yajl_gen_cstr(gen, "time");
+  yajl_gen_integer(gen, stats.gc_time);
 
-  json_gen_cstr(gen, "utime");
-  json_gen_integer(gen, stats.gc_utime);
+  yajl_gen_cstr(gen, "utime");
+  yajl_gen_integer(gen, stats.gc_utime);
 
-  json_gen_cstr(gen, "stime");
-  json_gen_integer(gen, stats.gc_stime);
+  yajl_gen_cstr(gen, "stime");
+  yajl_gen_integer(gen, stats.gc_stime);
 }
 
 void install_gc_tracer()
