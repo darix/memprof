@@ -395,7 +395,7 @@ json_for_args(int argc, VALUE *argv)
   if (!out)
     out = stderr;
 
-  yajl_gen gen = yajl_gen_alloc2((json_print_t)&json_print, out == stderr ? &fancy_conf : &basic_conf, NULL, (void*)out);
+  yajl_gen gen = yajl_gen_alloc2((yajl_print_t)&json_print, out == stderr ? &fancy_conf : &basic_conf, NULL, (void*)out);
 
   return gen;
 }
@@ -1660,7 +1660,7 @@ memprof_dump_all(int argc, VALUE *argv, VALUE self)
   }
 
   yajl_gen_config conf = { .beautify = 0, .indentString = "  " };
-  yajl_gen gen = yajl_gen_alloc2((json_print_t)&json_print, &conf, NULL, (void*)out);
+  yajl_gen gen = yajl_gen_alloc2((yajl_print_t)&json_print, &conf, NULL, (void*)out);
 
   track_objs = 0;
 
