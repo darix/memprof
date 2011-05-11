@@ -111,7 +111,7 @@ if RUBY_PLATFORM =~ /linux/
       end
     end
 
-    $LIBPATH.unshift "#{CWD}/dst/lib"
+    $LDFLAGS = "-L#{CWD}/dst/lib/"
     $INCFLAGS[0,0] = "-I#{CWD}/dst/include/libelf -I#{CWD}/dst/include/ "
     unless have_library('elf_ext', 'gelf_getshdr')
       raise 'libelf build failed'
