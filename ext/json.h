@@ -27,7 +27,7 @@ struct yajl_gen_t
     yajl_print_t print;
     void * ctx; /* json_buf */
     /* memory allocation routines */
-    json_alloc_funcs alloc;
+    yajl_alloc_funcs alloc;
 };
 
 /* END HAX
