@@ -19,6 +19,10 @@ def sys(cmd)
   ret
 end
 
+def add_define(name)
+  $defs.push("-D#{name}")
+end
+
 ###
 # yajl
 unless ENV["USE_SYSTEM_LIBRARIES"]
@@ -77,10 +81,6 @@ else
   add_define 'HAVE_YAJL_YAJL_H'
 end
 
-
-def add_define(name)
-  $defs.push("-D#{name}")
-end
 
 if RUBY_PLATFORM =~ /linux/
   unless ENV["USE_SYSTEM_LIBRARIES"]
