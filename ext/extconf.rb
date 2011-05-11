@@ -21,51 +21,52 @@ end
 
 ###
 # yajl
+unless ENV["USE_SYSTEM_LIBRARIES"]
+  yajl = File.basename('yajl-1.0.9.tar.gz')
+  dir = File.basename(yajl, '.tar.gz')
 
-yajl = File.basename('yajl-1.0.9.tar.gz')
-dir = File.basename(yajl, '.tar.gz')
+  unless File.exists?("#{CWD}/dst/lib/libyajl_ext.a")
+    puts "(I'm about to compile yajl.. this will definitely take a while)"
 
-unless File.exists?("#{CWD}/dst/lib/libyajl_ext.a")
-  puts "(I'm about to compile yajl.. this will definitely take a while)"
+    Dir.chdir('src') do
+      FileUtils.rm_rf(dir) if File.exists?(dir)
 
-  Dir.chdir('src') do
-    FileUtils.rm_rf(dir) if File.exists?(dir)
+      sys("tar zxvf #{yajl}")
+      Dir.chdir("#{dir}/src") do
+        sys("sed -i -e 's,yajl,json,g' *.h *.c api/*.h")
+        Dir['{,api/}yajl*.{h,c}'].each do |file|
+          FileUtils.mv file, file.gsub('yajl', 'json')
+        end
 
-    sys("tar zxvf #{yajl}")
-    Dir.chdir("#{dir}/src") do
-      sys("sed -i -e 's,yajl,json,g' *.h *.c api/*.h")
-      Dir['{,api/}yajl*.{h,c}'].each do |file|
-        FileUtils.mv file, file.gsub('yajl', 'json')
+        FileUtils.mkdir_p "api/json"
+        %w[ common parse gen ].each do |f|
+          FileUtils.cp "api/json_#{f}.h", 'api/json/'
+        end
+
+        File.open("extconf.rb",'w') do |f|
+          f.puts "require 'mkmf'; $INCFLAGS[0,0] = '-I./api/ '; create_makefile 'libyajl'"
+        end
+
+        sys("#{Config::CONFIG['bindir']}/#{Config::CONFIG['ruby_install_name']} extconf.rb")
+        sys("make")
+
+        if RUBY_PLATFORM =~ /darwin/
+          sys("libtool -static -o libyajl_ext.a #{Dir['*.o'].join(' ')}")
+        else
+          sys("ar rv libyajl_ext.a #{Dir['*.o'].join(' ')}")
+        end
+
+        FileUtils.mkdir_p "#{CWD}/dst/lib"
+        FileUtils.cp 'libyajl_ext.a', "#{CWD}/dst/lib"
+        FileUtils.mkdir_p "#{CWD}/dst/include"
+        FileUtils.cp_r 'api/json', "#{CWD}/dst/include/"
       end
-
-      FileUtils.mkdir_p "api/json"
-      %w[ common parse gen ].each do |f|
-        FileUtils.cp "api/json_#{f}.h", 'api/json/'
-      end
-
-      File.open("extconf.rb",'w') do |f|
-        f.puts "require 'mkmf'; $INCFLAGS[0,0] = '-I./api/ '; create_makefile 'libyajl'"
-      end
-
-      sys("#{Config::CONFIG['bindir']}/#{Config::CONFIG['ruby_install_name']} extconf.rb")
-      sys("make")
-
-      if RUBY_PLATFORM =~ /darwin/
-        sys("libtool -static -o libyajl_ext.a #{Dir['*.o'].join(' ')}")
-      else
-        sys("ar rv libyajl_ext.a #{Dir['*.o'].join(' ')}")
-      end
-
-      FileUtils.mkdir_p "#{CWD}/dst/lib"
-      FileUtils.cp 'libyajl_ext.a', "#{CWD}/dst/lib"
-      FileUtils.mkdir_p "#{CWD}/dst/include"
-      FileUtils.cp_r 'api/json', "#{CWD}/dst/include/"
     end
   end
-end
 
-$LIBPATH.unshift "#{CWD}/dst/lib"
-$INCFLAGS[0,0] = "-I#{CWD}/dst/include "
+  $LIBPATH.unshift "#{CWD}/dst/lib"
+  $INCFLAGS[0,0] = "-I#{CWD}/dst/include "
+end
 
 unless have_library('yajl_ext') and have_header('json/json_gen.h')
   raise 'Yajl build failed'
@@ -76,65 +77,70 @@ def add_define(name)
 end
 
 if RUBY_PLATFORM =~ /linux/
-  ###
-  # libelf
+  unless ENV["USE_SYSTEM_LIBRARIES"]
+    ###
+    # libelf
 
-  libelf = File.basename('libelf-0.8.13.tar.gz')
-  dir = File.basename(libelf, '.tar.gz')
+    libelf = File.basename('libelf-0.8.13.tar.gz')
+    dir = File.basename(libelf, '.tar.gz')
 
-  unless File.exists?("#{CWD}/dst/lib/libelf_ext.a")
-    puts "(I'm about to compile libelf.. this will definitely take a while)"
+    unless File.exists?("#{CWD}/dst/lib/libelf_ext.a")
+      puts "(I'm about to compile libelf.. this will definitely take a while)"
 
-    Dir.chdir('src') do
-      FileUtils.rm_rf(dir) if File.exists?(dir)
+      Dir.chdir('src') do
+        FileUtils.rm_rf(dir) if File.exists?(dir)
 
-      sys("tar zxvf #{libelf}")
-      Dir.chdir(dir) do
-        ENV['CFLAGS'] = '-fPIC'
-        sys("./configure --prefix=#{CWD}/dst --disable-nls --disable-shared")
-        sys("make")
-        sys("make install")
+        sys("tar zxvf #{libelf}")
+        Dir.chdir(dir) do
+          ENV['CFLAGS'] = '-fPIC'
+          sys("./configure --prefix=#{CWD}/dst --disable-nls --disable-shared")
+          sys("make")
+          sys("make install")
+        end
+      end
+
+      Dir.chdir('dst/lib') do
+        FileUtils.ln_s 'libelf.a', 'libelf_ext.a'
       end
     end
 
-    Dir.chdir('dst/lib') do
-      FileUtils.ln_s 'libelf.a', 'libelf_ext.a'
-    end
+    $LIBPATH.unshift "#{CWD}/dst/lib"
+    $INCFLAGS[0,0] = "-I#{CWD}/dst/include/libelf -I#{CWD}/dst/include/ "
+  else
   end
-
-  $LIBPATH.unshift "#{CWD}/dst/lib"
-  $INCFLAGS[0,0] = "-I#{CWD}/dst/include "
-
   unless have_library('elf_ext', 'gelf_getshdr')
     raise 'libelf build failed'
   end
 
-  ###
-  # libdwarf
+  unless ENV["USE_SYSTEM_LIBRARIES"]
+    ###
+    # libdwarf
 
-  libdwarf = File.basename('libdwarf-20091118.tar.gz')
-  dir = File.basename(libdwarf, '.tar.gz').sub('lib','')
+    libdwarf = File.basename('libdwarf-20091118.tar.gz')
+    dir = File.basename(libdwarf, '.tar.gz').sub('lib','')
 
-  unless File.exists?("#{CWD}/dst/lib/libdwarf_ext.a")
-    puts "(I'm about to compile libdwarf.. this will definitely take a while)"
+    unless File.exists?("#{CWD}/dst/lib/libdwarf_ext.a")
+      puts "(I'm about to compile libdwarf.. this will definitely take a while)"
 
-    Dir.chdir('src') do
-      FileUtils.rm_rf(dir) if File.exists?(dir)
+      Dir.chdir('src') do
+        FileUtils.rm_rf(dir) if File.exists?(dir)
 
-      sys("tar zxvf #{libdwarf}")
-      Dir.chdir("#{dir}/libdwarf") do
-        ENV['CFLAGS'] = "-fPIC -I#{CWD}/dst/include"
-        ENV['LDFLAGS'] = "-L#{CWD}/dst/lib"
-        sys("./configure")
-        sys("make")
+        sys("tar zxvf #{libdwarf}")
+        Dir.chdir("#{dir}/libdwarf") do
+          ENV['CFLAGS'] = "-fPIC -I#{CWD}/dst/include"
+          ENV['LDFLAGS'] = "-L#{CWD}/dst/lib"
+          sys("./configure")
+          sys("make")
 
-        FileUtils.cp 'libdwarf.a', "#{CWD}/dst/lib/libdwarf_ext.a"
-        FileUtils.cp 'dwarf.h', "#{CWD}/dst/include/"
-        FileUtils.cp 'libdwarf.h', "#{CWD}/dst/include/"
+          FileUtils.cp 'libdwarf.a', "#{CWD}/dst/lib/libdwarf_ext.a"
+          FileUtils.cp 'dwarf.h', "#{CWD}/dst/include/"
+          FileUtils.cp 'libdwarf.h', "#{CWD}/dst/include/"
+        end
       end
     end
+  else
+    $INCFLAGS[0,0] = ' -I/usr/include/libdwarf '
   end
-
   unless have_library('dwarf_ext')
     raise 'libdwarf build failed'
   end
