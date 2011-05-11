@@ -110,10 +110,13 @@ if RUBY_PLATFORM =~ /linux/
 
     $LIBPATH.unshift "#{CWD}/dst/lib"
     $INCFLAGS[0,0] = "-I#{CWD}/dst/include/libelf -I#{CWD}/dst/include/ "
+    unless have_library('elf_ext', 'gelf_getshdr')
+      raise 'libelf build failed'
+    end
   else
-  end
-  unless have_library('elf_ext', 'gelf_getshdr')
-    raise 'libelf build failed'
+    unless have_library('elf', 'gelf_getshdr')
+      raise 'libelf build failed'
+    end
   end
 
   unless ENV["USE_SYSTEM_LIBRARIES"]
@@ -142,11 +145,14 @@ if RUBY_PLATFORM =~ /linux/
         end
       end
     end
+    unless have_library('dwarf_ext')
+      raise 'libdwarf build failed'
+    end
   else
     $INCFLAGS[0,0] = ' -I/usr/include/libdwarf '
-  end
-  unless have_library('dwarf_ext')
-    raise 'libdwarf build failed'
+    unless have_library('dwarf')
+      raise 'libdwarf build failed'
+    end
   end
 
   is_elf = true
