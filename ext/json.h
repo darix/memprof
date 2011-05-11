@@ -24,7 +24,7 @@ struct yajl_gen_t
     unsigned int pretty;
     const char * indentString;
     yajl_gen_state state[YAJL_MAX_DEPTH];
-    json_print_t print;
+    yajl_print_t print;
     void * ctx; /* json_buf */
     /* memory allocation routines */
     json_alloc_funcs alloc;
