@@ -25,7 +25,7 @@ end
 
 ###
 # yajl
-unless ENV["USE_SYSTEM_LIBRARIES"]
+unless ENV["USE_SYSTEM_LIBYAJL"]
   yajl = File.basename('yajl-1.0.9.tar.gz')
   dir = File.basename(yajl, '.tar.gz')
 
@@ -83,7 +83,7 @@ end
 
 
 if RUBY_PLATFORM =~ /linux/
-  unless ENV["USE_SYSTEM_LIBRARIES"]
+  unless ENV["USE_SYSTEM_LIBELF"]
     ###
     # libelf
 
@@ -121,7 +121,7 @@ if RUBY_PLATFORM =~ /linux/
     end
   end
 
-  unless ENV["USE_SYSTEM_LIBRARIES"]
+  unless ENV["USE_SYSTEM_LIBDWARF"]
     ###
     # libdwarf
 
