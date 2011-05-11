@@ -23,6 +23,9 @@ def add_define(name)
   $defs.push("-D#{name}")
 end
 
+FileUtils.mkdir_p "#{CWD}/dst/lib"
+FileUtils.mkdir_p "#{CWD}/dst/include"
+
 ###
 # yajl
 unless ENV["USE_SYSTEM_LIBYAJL"]
@@ -60,9 +63,7 @@ unless ENV["USE_SYSTEM_LIBYAJL"]
           sys("ar rv libyajl_ext.a #{Dir['*.o'].join(' ')}")
         end
 
-        FileUtils.mkdir_p "#{CWD}/dst/lib"
         FileUtils.cp 'libyajl_ext.a', "#{CWD}/dst/lib"
-        FileUtils.mkdir_p "#{CWD}/dst/include"
         FileUtils.cp_r 'api/json', "#{CWD}/dst/include/"
       end
     end
@@ -147,6 +148,8 @@ if RUBY_PLATFORM =~ /linux/
         end
       end
     end
+    $LDFLAGS = "-L#{CWD}/dst/lib/"
+    $INCFLAGS[0,0] = " -I#{CWD}/dst/include/ "
     unless have_library('dwarf_ext')
       raise 'libdwarf build failed'
     end
